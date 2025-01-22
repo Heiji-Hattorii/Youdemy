@@ -1,14 +1,14 @@
 <?php
-require_once 'classes/class.users.php';
-$user=new Users();
+require_once 'classes/class.admin.php';
+$admin=new Admin();
 session_start();
 
-$users=$user->afficher_users();
+$users=$admin->afficher_users();
 if(isset($_POST['id_status']) && isset($_POST['statussel'])){
-    $user->update_status($_POST['id_status'], $_POST['statussel']) ;
+    $admin->update_status($_POST['id_status'], $_POST['statussel']) ;
 }
 elseif(isset($_POST['id_per'])){
-    $user->supprimerUser($_POST['id_per']);
+    $admin->supprimerUser($_POST['id_per']);
 }
 ?>
 

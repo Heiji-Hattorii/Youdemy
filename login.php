@@ -1,11 +1,11 @@
 <?php
-require_once 'classes/class.users.php';
+require_once 'classes/class.Users.php';
 $user=new Users();
 $message = '';
 
 if(isset($_POST['email']) && isset($_POST['password']) ){
    $return = $user->login($_POST['email'],$_POST['password']);
-   
+
    if ($return) {
     $message = $return;
 }

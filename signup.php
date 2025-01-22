@@ -1,6 +1,6 @@
 <?php
-require_once 'classes/class.users.php';
-$user=new Users();
+require_once 'classes/class.signUsers.php';
+$user=new signUsers();
 $message = '';
 
 if(isset($_POST['identifiant']) && isset($_POST['email']) && isset($_POST['password'])  && isset($_POST['cpassword'])  && isset($_POST['role'])){

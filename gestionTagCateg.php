@@ -1,53 +1,44 @@
 <?php 
-require 'classes/class.enseignants.php';
-$teach= new Enseignant();
+require 'classes/class.admin.php';
+require 'classes/class.categories.php';
+require 'classes/class.tags.php';
+
+
+$admin= new Admin();
+$catt= new Categorie();
+$tagg= new Tag();
+
+
 session_start();
 
-$categories=$teach->affichercategories();
-$tagcat=$teach->tagaucateg();
+$categories=$catt->affichercategories();
+$taglist=$tagg->alltags();
 
 if(isset($_POST['nom_categorie'])){
-    $teach->addcategorie($_POST['nom_categorie']);
+    $catt->addcategorie($_POST['nom_categorie']);
     header("Location:gestionTagCateg.php");
-
     }
+
+if (isset($_POST['idtagmod']) && isset($_POST['nomtagmod'])) {
+    $tagg->modifiertag($_POST['idtagmod'], $_POST['nomtagmod']);
+    header("Location:gestionTagCateg.php");
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['tag'])) {
+    $tagg->addtag($_POST['tag']);
+    header("Location:gestionTagCateg.php");
+}
 if(isset($_POST['id_cat_sup'])){
-        $teach->deletecategorie($_POST['id_cat_sup']);
-        header("Location:gestionTagCateg.php");
-    
-        }
-if(isset($_POST['idtagmod']) && isset($_POST['nomtagmod'])){
-            $teach->modifiertag($_POST['idtagmod'],$_POST['nomtagmod']);
-            header("Location:gestionTagCateg.php");
-        
-        }
-
-
+    $catt->deletecategorie($_POST['id_cat_sup']);
+    header("Location:gestionTagCateg.php");    
+    }
 if(isset($_POST['id_tag_sup'])){
-            $teach->deletetag($_POST['id_tag_sup']);
-            header("Location:gestionTagCateg.php");
-        
-            }
+    $tagg->deletetag($_POST['id_tag_sup']);
+    header("Location:gestionTagCateg.php");        
+    }
 if(isset($_POST['idcatmod']) && isset($_POST['nomcatmod'])){
-                $teach->modifiercategorie($_POST['idcatmod'],$_POST['nomcatmod']);
-                header("Location:gestionTagCateg.php");
-            
-            }
+    $catt->modifiercategorie($_POST['idcatmod'],$_POST['nomcatmod']);
+    header("Location:gestionTagCateg.php");
+        }
 
-
-
-
-
-
-elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_categorie']) && isset($_POST['tags'])) {
-    $id_categorie = $_POST['id_categorie'];
-    $tags = $_POST['tags'];
-$tagsArray = explode('-', $tags);
-foreach ($tagsArray as $tag) {
-$teach->addtag($tag,$_POST['id_categorie']);
-header("Location:gestionTagCateg.php");
-}
-}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -60,133 +51,160 @@ header("Location:gestionTagCateg.php");
 </head>
 
 <body>
-<?php include 'header.php'?>
-<div  class="bg-gray-100 py-8 w-screen">
+    <?php include 'header.php'?>
+    <div class="bg-gray-100 py-8 w-screen">
 
-    <h1 class="text-2xl font-bold text-center mb-6 text-gray-700  ">Ajouter une Catégorie
-        et des Tags</h1>
-    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md grid grid-cols-2 gap-[20px]">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-700  ">Ajouter une Catégorie
+            et des Tags</h1>
+        <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md grid grid-cols-2 gap-[20px]">
 
-        <div>
-            <form action="" method="POST" class="space-y-4 mb-8">
+            <div>
+                <form action="" method="POST" class="space-y-4 mb-8">
+                    <div>
+                        <label for="nom_categorie" class="block text-gray-600 font-medium">Nom de la catégorie :</label>
+                        <input type="text" id="nom_categorie" name="nom_categorie"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Nom de la catégorie" required>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none">Ajouter
+                        Catégorie</button>
+                </form>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-6 w-96">
+            <h1 class="text-2xl font-bold mb-4 text-gray-700">Ajouter un Tag</h1>
+            <form action="" method="POST" class="space-y-4">
                 <div>
-                    <label for="nom_categorie" class="block text-gray-600 font-medium">Nom de la catégorie :</label>
-                    <input type="text" id="nom_categorie" name="nom_categorie"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Nom de la catégorie" required>
+                    <label for="tag" class="block text-sm font-medium text-gray-600">Nom du Tag :</label>
+                    <input type="text" id="tag" name="tag" placeholder="Entrez un tag" required
+                        class="w-full mt-1 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-
                 <button type="submit"
-                    class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none">Ajouter
-                    Catégorie</button>
+                    class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200">
+                    Ajouter
+                </button>
             </form>
         </div>
 
-        <div>
-            <!-- Formulaire pour ajouter des tags à une catégorie -->
-            <form action="" method="POST" class="space-y-4">
-                <div>
-                    <label for="id_categorie" class="block text-gray-600 font-medium">Sélectionner la catégorie:</label>
-                    <select id="id_categorie" name="id_categorie"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required>
-                        <option value="">Choisir une catégorie</option>
-                        <?php if(!empty($categories)): ?>
-                        <?php foreach ($categories as $categ) : ?>
-                        <option value="<?= htmlspecialchars($categ['id_categorie']) ?> ">
-                            <?= htmlspecialchars($categ['nom_categorie']) ?></option>
-                        <?php endforeach ;?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="tags" class="block text-gray-600 font-medium">Tags (met le caractere"-" si vous voulee
-                        entre plius qu un tag) :</label>
-                    <input type="text" id="tags" name="tags"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Entrez des mots-cle" required>
-                </div>
-
-                <button type="submit"
-                    class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none">Ajouter
-                    Tags</button>
-            </form>
         </div>
 
     </div>
 
-    <div class="font-[sans-serif] overflow-x-auto  mx-auto grid justify-center w-[80%] grid-cols-1 ">
+    <div class="font-[sans-serif] overflow-x-auto  mx-auto grid justify-center w-[80%] grid-cols-2 ">
 
-        <table class="min-w-full bg-white mt-10 ">
+        <table class="max-w-[90%] bg-white mt-10 ">
             <thead class="bg-gray-800 whitespace-nowrap">
                 <tr>
                     <th class="p-4 text-left text-sm font-medium text-white">
                         Categorie
                     </th>
-                    <th class="p-4 text-left text-sm font-medium text-white">
-                        TAG
-                    </th>
 
+                    <th class="p-4 text-left text-sm font-medium text-white">
+                        Actions
+                    </th>
                 </tr>
             </thead>
 
             <tbody class="whitespace-nowrap">
-                <?php if (count($tagcat) > 0): ?>
-                <?php foreach ($tagcat as $tigo): ?>
+                <?php if (count($categories) > 0): ?>
+                <?php foreach ($categories as $cate): ?>
                 <tr class="even:bg-blue-50">
                     <td class="p-4 text-sm text-black">
-                        <div class="flex items-center space-x-2">
-                            <span><?= htmlspecialchars($tigo["nom_categorie"]) ?></span>
-                            <button title="Modifier" name="editcategorie"
-                                onclick="editCategory('<?= htmlspecialchars($tigo['id_categorie']) ?>', '<?= $tigo['nom_categorie'] ?>')">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-4 h-4 fill-blue-500 hover:fill-blue-700" viewBox="0 0 20 20">
-                                    <path
-                                        d="M17.414 2.586a2 2 0 00-2.828 0L9.586 7.586l-2 2a1 1 0 00-.293.707v3a1 1 0 001 1h3a1 1 0 00.707-.293l2-2 5-5a2 2 0 000-2.828l-1.586-1.586zm-9.828 7.828l1.414-1.414 2 2L9.586 12H8v-1.586l-.414-.414zM5 17v-1.586l6-6 2 2-6 6H5zm-2 0a1 1 0 01-1-1v-2a1 1 0 01.293-.707l8-8L9.414 7.414l-8 8A1 1 0 011 17h2z" />
-                                </svg>
-                            </button>
-                            <button title="Supprimer" name="deletecategorie"
-                                onclick="deleteCategory('<?= $tigo['id_categorie'] ?>')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-red-500 hover:fill-red-700"
-                                    viewBox="0 0 20 20">
-                                    <path
-                                        d="M6 2a1 1 0 00-1 1v1H3a1 1 0 000 2h1v10a2 2 0 002 2h8a2 2 0 002-2V6h1a1 1 0 100-2h-2V3a1 1 0 00-1-1H6zm3 3a1 1 0 112 0v1a1 1 0 11-2 0V5z" />
-                                </svg>
-                            </button>
-                        </div>
+                        <?= htmlspecialchars($cate["nom_categorie"]) ?>
                     </td>
+                    </td>
+                    <td class="p-4">
+                        <button class="mr-4 " title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" class=" w-5 fill-blue-500 hover:fill-blue-700"
+                                onclick="editCategory('<?= $cate['id_categorie'] ?>','<?= htmlspecialchars($cate['nom_categorie']) ?>')"
+                                viewBox="0 0 348.882 348.882">
+                                <path
+                                    d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
+                                    data-original="#000000" />
+                                <path
+                                    d="M303.85 138.388c-8.284 0-15 6.716-15 15v127.347c0 21.034-17.113 38.147-38.147 38.147H68.904c-21.035 0-38.147-17.113-38.147-38.147V100.413c0-21.034 17.113-38.147 38.147-38.147h131.587c8.284 0 15-6.716 15-15s-6.716-15-15-15H68.904C31.327 32.266.757 62.837.757 100.413v180.321c0 37.576 30.571 68.147 68.147 68.147h181.798c37.576 0 68.147-30.571 68.147-68.147V153.388c.001-8.284-6.715-15-14.999-15z"
+                                    data-original="#000000" />
+                            </svg>
+                        </button>
+                        <input type="hidden" name="id_user" value="<?= $cate['id_categorie'] ?>">
+                        <button type="submit" name="Delete" onclick="deleteCategory('<?= $cate['id_categorie'] ?>')"
+                            class="sprm text-white  px-1 py-2.5 rounded-lg bg-white outline-none ">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 fill-red-500 hover:fill-red-700"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
+                                    data-original="#000000" />
+                                <path d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
+                                    data-original="#000000" />
+                            </svg>
+                        </button>
+                        </form>
+
+                    </td>
+
+                </tr>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <tr>
+                    <td colspan="5">aucune categorie trouve</td>
+                </tr>
+                <?php endif; ?>
+
+
+            </tbody>
+        </table>
+
+
+        <table class="max-w-[490%] bg-white mt-10 ">
+            <thead class="bg-gray-800 whitespace-nowrap">
+                <tr>
+                    <th class="p-4 text-left text-sm font-medium text-white">
+                        Tag
+                    </th>
+
+                    <th class="p-4 text-left text-sm font-medium text-white">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="whitespace-nowrap">
+                <?php if (count($taglist) > 0): ?>
+                <?php foreach ($taglist as $taglist): ?>
+                <tr class="even:bg-blue-50">
                     <td class="p-4 text-sm text-black">
-                        <?php if(!empty($tigo["groupe"])):?>
-                        <?php $tags = explode('_', $tigo["groupe"]);?>
-                        <div class="flex items-center space-x-2 ">
-
-                            <?php foreach ($tags as $tag):?>
-                            <button
-                                class="px-[5px] bg-gray-200 rounded-full text-sm hover:bg-gray-300"><?= htmlspecialchars($tag) ?></button>
-                            <button title="Modifier"
-                                onclick="editTag('<?= $tigo['id_tag'] ?>','<?= $tigo['tag'] ?>')">
-                        
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-4 h-4 fill-blue-500 hover:fill-blue-700" viewBox="0 0 20 20">
-                                    <path
-                                        d="M17.414 2.586a2 2 0 00-2.828 0L9.586 7.586l-2 2a1 1 0 00-.293.707v3a1 1 0 001 1h3a1 1 0 00.707-.293l2-2 5-5a2 2 0 000-2.828l-1.586-1.586zm-9.828 7.828l1.414-1.414 2 2L9.586 12H8v-1.586l-.414-.414zM5 17v-1.586l6-6 2 2-6 6H5zm-2 0a1 1 0 01-1-1v-2a1 1 0 01.293-.707l8-8L9.414 7.414l-8 8A1 1 0 011 17h2z" />
-                                </svg>
-                            </button>
-                            <button title="Supprimer"
-                                onclick="deleteTag('<?= $tigo['id_tag'] ?>')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-red-500 hover:fill-red-700"
-                                    viewBox="0 0 20 20">
-                                    <path
-                                        d="M6 2a1 1 0 00-1 1v1H3a1 1 0 000 2h1v10a2 2 0 002 2h8a2 2 0 002-2V6h1a1 1 0 100-2h-2V3a1 1 0 00-1-1H6zm3 3a1 1 0 112 0v1a1 1 0 11-2 0V5z" />
-                                </svg>
-                            </button>
-                            <?php endforeach;?>
-                        </div>
-
-                        <?php endif  ?>
+                        <?= htmlspecialchars($taglist["tag"]) ?>
                     </td>
+                    </td>
+                    <td class="p-4">
+                        <button class="mr-4 " title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" class=" w-5 fill-blue-500 hover:fill-blue-700"
+                                onclick="editTag('<?= $taglist['id_tag'] ?>','<?= htmlspecialchars($taglist['tag']) ?>')"
+                                viewBox="0 0 348.882 348.882">
+                                <path
+                                    d="m333.988 11.758-.42-.383A43.363 43.363 0 0 0 304.258 0a43.579 43.579 0 0 0-32.104 14.153L116.803 184.231a14.993 14.993 0 0 0-3.154 5.37l-18.267 54.762c-2.112 6.331-1.052 13.333 2.835 18.729 3.918 5.438 10.23 8.685 16.886 8.685h.001c2.879 0 5.693-.592 8.362-1.76l52.89-23.138a14.985 14.985 0 0 0 5.063-3.626L336.771 73.176c16.166-17.697 14.919-45.247-2.783-61.418zM130.381 234.247l10.719-32.134.904-.99 20.316 18.556-.904.99-31.035 13.578zm184.24-181.304L182.553 197.53l-20.316-18.556L294.305 34.386c2.583-2.828 6.118-4.386 9.954-4.386 3.365 0 6.588 1.252 9.082 3.53l.419.383c5.484 5.009 5.87 13.546.861 19.03z"
+                                    data-original="#000000" />
+                                <path
+                                    d="M303.85 138.388c-8.284 0-15 6.716-15 15v127.347c0 21.034-17.113 38.147-38.147 38.147H68.904c-21.035 0-38.147-17.113-38.147-38.147V100.413c0-21.034 17.113-38.147 38.147-38.147h131.587c8.284 0 15-6.716 15-15s-6.716-15-15-15H68.904C31.327 32.266.757 62.837.757 100.413v180.321c0 37.576 30.571 68.147 68.147 68.147h181.798c37.576 0 68.147-30.571 68.147-68.147V153.388c.001-8.284-6.715-15-14.999-15z"
+                                    data-original="#000000" />
+                            </svg>
+                        </button>
+                        <input type="hidden" name="id_user" value="<?= $taglist['id_tag'] ?>">
+                        <button type="submit" name="Delete" onclick="deleteTag('<?= $taglist['id_tag'] ?>')"
+                            class="sprm text-white  px-1 py-2.5 rounded-lg bg-white outline-none ">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 fill-red-500 hover:fill-red-700"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"
+                                    data-original="#000000" />
+                                <path d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"
+                                    data-original="#000000" />
+                            </svg>
+                        </button>
+                        </form>
 
+                    </td>
 
                 </tr>
                 <?php endforeach; ?>
@@ -290,9 +308,9 @@ header("Location:gestionTagCateg.php");
 
 
 
- <!-- suppression           ************************************************************************ -->
+    <!-- suppression           ************************************************************************ -->
 
- <div id="modaldeletetag"
+    <div id="modaldeletetag"
         class=" modaldeletecategorie fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto font-[sans-serif] hidden">
         <div class="  w-full max-w-lg bg-white shadow-lg rounded-lg p-6 relative">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -368,16 +386,6 @@ header("Location:gestionTagCateg.php");
 
 
 
-
-
-
-
-
-
-
-
-
-
     <script>
     function editTag(idtagmod, nomtagmod) {
         document.getElementById('idtagmod').value = idtagmod;
@@ -393,7 +401,7 @@ header("Location:gestionTagCateg.php");
     function deleteTag(idtagsup) {
         document.getElementById('id_tag_sup').value = idtagsup;
 
-        
+
         document.getElementById('modaldeletetag').classList.remove('hidden');
     }
 

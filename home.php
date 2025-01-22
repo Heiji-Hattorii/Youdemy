@@ -1,10 +1,26 @@
 <?php
 require 'classes/class.enseignants.php';
+require 'classes/class.coursvid.php';
+require 'classes/class.coursdoc.php';
+require 'classes/class.categories.php';
+
+$vid=new Coursvid();
+$doc=new Coursdoc();
+$catt=new Categorie();
+
+
 $teach=new Enseignant();
 session_start();
 
-if(isset($_POST['id_cour'])){
+if(isset($_POST['id_cour']) && $_SESSION['ROLE'] === 'etudiant'){
     $teach->ajoutmescours($_SESSION['ID_user'],$_POST['id_cour']);
+}
+elseif (!isset($_SESSION['ID_user'])) {
+    $_SESSION['ROLE'] = 'visiteur'; 
+
+    if(isset($_POST['id_cour']) ){
+        header("Location: login.php");
+        exit;}
 }
 if(isset($_POST['title']) ){
     if(trim($_POST['title'])!==''){
@@ -18,11 +34,16 @@ if (isset($_POST['categorieselect'])) {
         $slcs=$teach->rechercher_cours((int)($_POST['categorieselect']));}
 
 } else{
-    $cours=$teach->afficher_cours();
+    $docs=$doc->afficher_cours();
+    $vids=$vid->afficher_cours();
 }
 
-$categories=$teach->affichercategories();
+$categories=$catt->affichercategories();
+
+
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -95,7 +116,7 @@ $categories=$teach->affichercategories();
 </head>
 
 <body>
-<?php include 'header.php'?>
+    <?php include 'header.php'?>
 
     <div class="search-form" style="text-align: center; margin: 20px;">
         <form method="POST" action="">
@@ -134,7 +155,7 @@ $categories=$teach->affichercategories();
 
         <?php endforeach; ?>
         <?php else: ?>
-        <h3>il y a aucun cour de ce titre  1</h3>
+        <!-- <h3>il y a aucun cour de ce titre 1</h3> -->
         <?php endif; ?>
     </div>
 
@@ -154,32 +175,53 @@ $categories=$teach->affichercategories();
         </div>
         <?php endforeach; ?>
         <?php else: ?>
-        <h3>Aucun cours dans cette categorie</h3>
+        <!-- <h3>Aucun cours dans cette categorie</h3> -->
         <?php endif; ?>
     </div>
 
 
     <div class="catalogue">
-        <?php if (!empty($cours)): ?>
-        <?php foreach($cours as $cour): ?>
+        <?php if (!empty($docs)): ?>
+        <?php foreach($docs as $doc): ?>
         <div class="course-card">
-            <?php if ($cour['type']=== 'Document'): ?>
             <img src="images/icones/Premium Photo _ Stack of old vintage books hand drawn color watercolor illustration Library and learning.jpg"
                 alt="Image du cours">
-            <?php elseif ($cour['type']=== 'Video'): ?>
-            <img src="images/icones/02bqDexyTO6DiTPEV1yc2w.jpg" alt="Image du cours">
-            <?php endif ?>
-            <h3><?= htmlspecialchars($cour['titre']) ?></h3>
-            <p><?= htmlspecialchars($cour['descri']) ?></p>
+            <h3><?= htmlspecialchars($doc['titre']) ?></h3>
+            <p><?= htmlspecialchars($doc['descri']) ?></p>
+            <p><?= htmlspecialchars($doc['pages'])?> pages</p>
+
+     
+            <?php if($_SESSION['ROLE']==='etudiant' || $_SESSION['ROLE']==='visiteur' ) :?>
             <form method="POST" action="">
-                <input type="hidden" name="id_cour" value="<?= htmlspecialchars($cour['id_cour']) ?>">
+                <input type="hidden" name="id_cour" value="<?= htmlspecialchars($doc['id_cour']) ?>">
                 <button class="ml-[10px] w-[50%] h-[25px] rounded-lg bg-blue-700 hover:bg-blue-800"
                     type="submit">S'inscrire</button>
             </form>
+           
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+        <?php endif; ?>
+        <?php if(!empty($vids)): ?>
+        <?php foreach($vids as $vid): ?>
+        <div class="course-card">
+            <img src="images/icones/02bqDexyTO6DiTPEV1yc2w.jpg" alt="Image du cours">
+            <h3><?= htmlspecialchars($vid['titre']) ?></h3>
+            <p><?= htmlspecialchars($vid['descri']) ?></p>
+            <p><?= htmlspecialchars($vid['seconds'])?> secondes</p>
+            <?php if($_SESSION['ROLE']==='etudiant' || $_SESSION['ROLE']==='visiteur') :?>
+
+            <form method="POST" action="">
+                <input type="hidden" name="id_cour" value="<?= htmlspecialchars($vid['id_cour']) ?>">
+                <button class="ml-[10px] w-[50%] h-[25px] rounded-lg bg-blue-700 hover:bg-blue-800"
+                    type="submit">S'inscrire</button>
+            </form>
+            <?php endif; ?>
+
         </div>
         <?php endforeach; ?>
         <?php else: ?>
-        <p>Aucun cours disponible pour le moment </p>
+        <!-- <p>Aucun cours disponible pour le moment </p> -->
         <?php endif; ?>
     </div>
 

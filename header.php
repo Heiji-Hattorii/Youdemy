@@ -2,14 +2,7 @@
 $user=new Users();
 if(isset($_POST['logout'])){
     $user->logout();
-
 }
-
-
-
-
-
-
 ?>
 
 
@@ -54,7 +47,7 @@ if(isset($_POST['logout'])){
                         </a>
                     </li>
                     <li class='max-lg:border-b max-lg:py-3 px-3'>
-                        <a href='home.php'
+                        <a href='homy.php'
                             class='hover:text-[#007bff] text-[#007bff] block font-semibold text-[15px]'>Home</a>
                     </li>
                     <?php if(isset($_SESSION['ID_user']) && ($_SESSION['ROLE'])==='enseignant'):?>
@@ -83,11 +76,11 @@ if(isset($_POST['logout'])){
                             class='hover:text-[#007bff] text-[#333] block font-semibold text-[15px]'>Gestion des
                             tags et categories</a>
                     </li>
-                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='#'
+                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='gererCours.php'
                             class='hover:text-[#007bff] text-[#333] block font-semibold text-[15px]'>Gestion des
                             cours</a>
                     </li>
-                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='#'
+                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='statistiqueadmin.php'
                             class='hover:text-[#007bff] text-[#333] block font-semibold text-[15px]'>Statistique</a>
                     </li>
                     <?php endif;?>
@@ -102,13 +95,11 @@ if(isset($_POST['logout'])){
                 </ul>
             </div>
 
-            <?php if(isset($_SESSION['ID_user'])):?>
+            <?php if(isset($_SESSION['ID_user']))  :?>
             <div class='flex items-center ml-auto space-x-6'>
                 <form action="" method="POST">
                     <button class='font-semibold text-[15px] border-none outline-none' name="logout">Logout</button>
                 </form>
-
-
                 <button id="toggleOpen" class='lg:hidden'>
                     <svg class="w-7 h-7" fill="#333" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd"

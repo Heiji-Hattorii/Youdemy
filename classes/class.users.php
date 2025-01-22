@@ -30,41 +30,6 @@ class Users extends Database
         return true;
     }
 
-    public function signup($identifiant, $email, $pass, $cpass,$role)
-    {
-        $validationResult = $this->valideDonnees($identifiant,$email, $pass, $cpass);
-        if ($validationResult !== true) {
-            return $validationResult;
-        }
-
-        try {
-
-
-            if($role==='enseignant'){
-                $status='en attente';
-            }
-            else{
-                $status='active';
-            }
-            $pass_hash = password_hash($pass, PASSWORD_BCRYPT);
-            
-            $sql = "INSERT INTO users (identifiant, email, pass,role,status ) VALUES (:identifiant, :email, :pass ,:role,:status)";
-            $pdo = $this->Connexion();
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'identifiant' => $identifiant,
-                'email' => $email,
-                'pass' => $pass_hash,
-                'role' => $role,
-                'status' => $status,
-
-            ]);
-        } catch (Exception $e) {
-            die("erreur lors de l'insertion des données de new user !!!");
-        }
-
-        header('Location: login.php');
-    }
 
     public function login($email, $password)
     {
@@ -79,8 +44,15 @@ class Users extends Database
                 session_start();
                 $_SESSION['ID_user'] = $user['id_user'];
                 $_SESSION['ROLE'] = $user['role'];
-                header('Location: home.php');
+                $_SESSION['STATUS'] = $user['status'];
+                if($_SESSION['STATUS']==='en attente'){
+                    header('Location: attente.php');
+                }
+                else{
+                header('Location: homy.php');}
                 exit;
+
+                
             } else {
                 return "Email ou mot de passe incorrect.";
             }
@@ -95,51 +67,12 @@ class Users extends Database
             unset($_SESSION['ID_user']);
             session_unset();
             session_destroy();
-            header("Location: home.php");
+            header("Location: homy.php");
             exit();
         } catch (Exception $e) {
             return "Erreur lors de logout : " . $e->getMessage();
         }
     }
-    public function afficher_cours(){
-        $pdo = $this->Connexion();
-        $stmt = $pdo->prepare("SELECT * FROM cours");
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-    public function afficher_users(){
-        $pdo = $this->Connexion();
-        $stmt = $pdo->prepare("SELECT * FROM users");
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-    public function update_status($id_user, $status) {
-        $query = "UPDATE users SET status = :status WHERE id_user = :id_user";
-        $pdo = $this->Connexion();
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':id_user', $id_user);
-
-        if ($stmt->execute()) {
-            header("Location: gererusers.php"); 
-            exit();
-        } else {
-            echo "Erreur  update role!";
-        }
-    }
-    public function supprimerUser($id_user){
-        $query = "DELETE FROM users  WHERE id_user = :id_user";
-        $pdo = $this->Connexion();
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':id_user', $id_user);
-
-        if ($stmt->execute()) {
-            header("Location: gererusers.php"); 
-            exit();
-        } else {
-            echo "Erreur  update role!";
-        }
-
-    }
+   
 }
 ?>

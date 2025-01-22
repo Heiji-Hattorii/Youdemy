@@ -45,7 +45,7 @@ $teach= new Enseignant();
                     </div>
                     
                     <div class="chart bg-white p-[20px] rounded-[10px] shadow-lg">
-                        <h2 class="text-black mb-[10px]">le nombre des etudiants inscrits</h2>
+                        <h2 class="text-black mb-[10px]">le nombre des cours ou on a des inscris</h2>
                         <canvas id="myChart"></canvas>
 
 
